@@ -3,12 +3,11 @@ var Note = React.createClass({
     this.setState({editing: true});
   },
   remove: function(){
-    alert("removing note");
+    this.props.onRemove(this.props.index);
   },
   save: function(){
-      var val = this.refs.newText.getDOMNode().value;
-      alert("TODO: save note value" + val);
-     this.setState({editing: false});
+    this.props.onChange(this.refs.newText.getDOMNode().value, this.props.index);
+    this.setState({editing: false});
   },
   getInitialState: function(){
     return {editing: false};
@@ -45,10 +44,6 @@ var Board = React.createClass({
   getInitialState: function(){
     return {
       notes: [
-        "Call Sahil",
-        "get paper",
-        "react is dope",
-        "wtf how is this working"
       ]
     };
   },
@@ -57,6 +52,11 @@ var Board = React.createClass({
       if(typeof props[propName] !== "number")
         return new Error('The count property must be a number');
     }
+  },
+  add: function(text){
+    var arr = this.state.notes
+    arr.push(text);
+    this.setState({notes: arr});
   },
   update: function(newText, i){
     var arr = this.state.notes;
@@ -67,18 +67,40 @@ var Board = React.createClass({
     var arr = this.state.notes;
     arr.splice(i, 1);
     this.setState({notes: arr});
-  }
+  },
+  eachNote: function(note, i){
+    return (
+      <Note key={i}
+        index={i}
+        onChange={this.update}
+        onRemove={this.remove}
+      >{note}</Note>
+    )
+  },
   render: function(){
     return (
       <div className="board">
-        {this.state.notes.map(function(note, i){
-          return(
-            <Note key={i}>{note}</Note>
-          );
-        })}
+        {this.state.notes.map(this.eachNote)}
+        <button className="btn btn-sm btn-success glyphicon glyphicon-plus" onClick={this.add.bind(null, 'New Note')} />
       </div>
     );
   }
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 React.render(<Board count={10} />, document.getElementById('react-container'));
